@@ -1,0 +1,56 @@
+name: Update README
+
+on:
+  push:
+    paths:
+      - 'release_notes/*'
+
+jobs:
+  update_readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: Install dependencies
+        run: npm install fs path
+      - name: Update README.md
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Fetch all version files
+            const versionFiles = fs.readdirSync('release_notes').filter(file => file.endsWith('.md') && file !== 'bottom_content.md');
+            versionFiles.sort((a, b) => b.localeCompare(a)); // Sort in descending order
+            const lastVersionFile = versionFiles[0];
+
+            const repoURL = 'https://github.com/gazebosim/gazebo-classic/blob/gazebo11/Migration.md';
+
+            // Prepare README content
+            let readmeContent = `# Project Title\n\n[![Build Status](url_to_build_status)](link_to_build_status)\n\nLast Updated: ${new Date().toLocaleString()}\n\nLatest Version: [${lastVersionFile}](release_notes/${lastVersionFile})\n\n`;
+
+            // Add links to all versions
+            versionFiles.forEach(file => {
+              readmeContent += `- [${file}](release_notes/${file})\n`;
+            });
+
+            // Add bottom content
+            const bottomContent = fs.readFileSync(path.join('release_notes', 'bottom_content.md'), 'utf-8');
+            readmeContent += `\n${bottomContent}`;
+
+            // Write README file
+            fs.writeFileSync('README.md', readmeContent);
+            
+      - name: Commit and push if it changed
+        run: | 
+          git diff
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "Updated README.md"
+          git push
