@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '14'
       - name: Install dependencies
-        run: npm install fs path octokit
+        run: npm install fs path
       - name: Update README.md
         uses: actions/github-script@v3
         with:
@@ -24,15 +24,12 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-            const { Octokit } = require('@octokit/core');
-            
-            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
             async function fetchMergedBranches(branchName) {
               const owner = context.repo.owner;
               const repo = context.repo.repo;
 
-              const mergedBranches = await octokit.request('GET /repos/{owner}/{repo}/pulls', {
+              const mergedBranches = await github.pulls.list({
                 owner: owner,
                 repo: repo,
                 base: branchName,
@@ -85,6 +82,3 @@ jobs:
           git config --local user.name "GitHub Action"
           git commit -am "Updated README.md"
           git push
-
-
-
