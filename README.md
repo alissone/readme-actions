@@ -1,12 +1,12 @@
 # Project Title
 
 [![Build Status](url_to_build_status)](link_to_build_status)
-test
 
-Last Updated: 6/7/2023, 12:07:25 AM
+Last Updated: 6/7/2023, 12:13:40 AM
 
-Latest Version: [1.2.6.md](release_notes/1.2.6.md)
+Latest Version: [1.2.7.md](release_notes/1.2.7.md)
 
+- [1.2.7.md](release_notes/1.2.7.md)
 - [1.2.6.md](release_notes/1.2.6.md)
 - [1.2.5.md](release_notes/1.2.5.md)
 - [1.2.4.md](release_notes/1.2.4.md)
