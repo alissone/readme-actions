@@ -24,47 +24,18 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-
-            async function fetchMergedBranches(branchName) {
-              const owner = context.repo.owner;
-              const repo = context.repo.repo;
-
-              const mergedBranches = await github.pulls.list({
-                owner: owner,
-                repo: repo,
-                base: branchName,
-                state: 'closed',
-              });
-
-              return mergedBranches.data.map(pr => pr.head.ref);
-            }
-            
-            const masterMergedBranches = await fetchMergedBranches('master');
-            const developMergedBranches = await fetchMergedBranches('develop');
             
             // Fetch all version files
             const versionFiles = fs.readdirSync('release_notes').filter(file => file.endsWith('.md') && file !== 'bottom_content.md');
             versionFiles.sort((a, b) => b.localeCompare(a)); // Sort in descending order
             const lastVersionFile = versionFiles[0];
 
-            const repoURL = 'https://github.com/gazebosim/gazebo-classic/blob/gazebo11/Migration.md';
-
             // Prepare README content
-            let readmeContent = `# Project Title\n\n[![Build Status](url_to_build_status)](link_to_build_status)\n\nLast Updated: ${new Date().toLocaleString()}\n\nLatest Version: [${lastVersionFile}](release_notes/${lastVersionFile})\n\n`;
+            let readmeContent = `# Readme Actions\n\n![Update Readme](https://github.com/alissone/readme-actions/actions/workflows/update-readme.yaml/badge.svg)\n\nLast Updated: ${new Date().toLocaleString()}\n\nLatest Version: [${lastVersionFile}](release_notes/${lastVersionFile})\n\n`;
 
             // Add links to all versions
             versionFiles.forEach(file => {
               readmeContent += `- [${file}](release_notes/${file})\n`;
-            });
-
-            // Add merged branches info
-            readmeContent += '\n## Merged Branches\n\n### Master\n\n';
-            masterMergedBranches.forEach(branch => {
-              readmeContent += `- ${branch}\n`;
-            });
-            readmeContent += '\n### Develop\n\n';
-            developMergedBranches.forEach(branch => {
-              readmeContent += `- ${branch}\n`;
             });
 
             // Add bottom content
@@ -76,8 +47,8 @@ jobs:
             
       - name: Commit and push if it changed
         run: | 
-          git pull
           git diff
+          git pull
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git commit -am "Updated README.md"
